@@ -1,0 +1,3 @@
+creation_rules:
+  - path_regex: .*\.enc\.env$
+    age: 'age1placeholder...' # Substituir pela chave age real

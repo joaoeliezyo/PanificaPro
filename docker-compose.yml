@@ -1,0 +1,76 @@
+services:
+  traefik:
+    image: traefik:v3
+    container_name: panificapro-traefik
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./certs:/certs
+    networks:
+      - panificapro-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: panificapro-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-panificapro}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backups:/app/backups
+    networks:
+      - panificapro-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: panificapro-redis
+    volumes:
+      - redis-data:/data
+    networks:
+      - panificapro-network
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: panificapro-backend
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?schema=public
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      NODE_ENV: ${NODE_ENV:-development}
+    volumes:
+      - ${UPLOAD_PATH:-./storage/uploads}:/app/uploads
+      - ${LOG_PATH:-./logs/backend}:/app/logs
+    depends_on:
+      - db
+      - redis
+    networks:
+      - panificapro-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/frontend.Dockerfile
+    container_name: panificapro-frontend
+    depends_on:
+      - backend
+    networks:
+      - panificapro-network
+
+networks:
+  panificapro-network:
+    driver: bridge
+
+volumes:
+  pgdata:
+  redis-data:

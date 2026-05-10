@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+
+# Next.js
+.next/
+out/
+
+# NestJS / TypeScript
+dist/
+*.tsbuildinfo
+
+# Production / Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.enc.env # Omit if you want to keep encrypted files in git, but usually SOPS files have a specific extension that IS committed. 
+          # Actually, PRD says SOPS is versionable. So I SHOULD NOT ignore .enc.env.
+          # I will ONLY ignore the plain .env.
+
+# Infrastructure / Local storage
+storage/
+logs/
+backups/
+certs/
+.docker/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm/
+
+# SOPS
+.sops.yaml # Commit this, but ignore the keys if they were outside (age keys usually are in ~/.config/sops/age/keys.txt)

@@ -49,6 +49,8 @@ services:
       REDIS_PORT: 6379
       NODE_ENV: ${NODE_ENV:-development}
     volumes:
+      - .:/app
+      - /app/node_modules
       - ${UPLOAD_PATH:-./storage/uploads}:/app/uploads
       - ${LOG_PATH:-./logs/backend}:/app/logs
     depends_on:
@@ -62,6 +64,10 @@ services:
       context: .
       dockerfile: docker/frontend.Dockerfile
     container_name: panificapro-frontend
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/apps/frontend/.next
     depends_on:
       - backend
     networks:
